@@ -63,7 +63,7 @@ class LinksCollection
 
         $this->minimalPriority = $minimalPriority;
 
-        $this->$defaulUpdatePeriod = $period;
+        $this->$defaulUpdatePeriod = $defaulUpdatePeriod;
     }
 
 
