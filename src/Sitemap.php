@@ -29,19 +29,38 @@ class Sitemap
     private $minimalPriority = 0.64;
 
     /**
+     * [$defaulUpdatePeriod]
+     *
+     * @var string
+     */
+    private $defaulUpdatePeriod = 'monthly';
+
+    /**
      * Array of pages that must be visited
      *
      * @var array
      */
     protected $pagesToVisit = [];
 
-
+    /**
+     * Pages that have been already visited
+     *
+     * @var array
+     */
     private $visited = [];
 
 
+    /**
+     * Do not parse these routes
+     *
+     * @var array
+     */
     protected $excluded = [];
 
-
+    /**
+     * Allowed
+     * @var [type]
+     */
     protected $allowedTypes = [
         'php',
         'html',
@@ -49,7 +68,11 @@ class Sitemap
         '/'
     ];
 
-
+    /**
+     * Stores LinksCollection Object
+     *
+     * @var [LinksCollection]
+     */
     private $links;
 
 
@@ -61,7 +84,7 @@ class Sitemap
 
     public function generate()
     {
-        $this->links = new LinksCollection($this->domain, $this->levels, $this->minimalPriority);
+        $this->links = new LinksCollection($this->domain, $this->levels, $this->minimalPriority, $this->defaulUpdatePeriod);
 
         $this->crawl();
 
@@ -97,6 +120,22 @@ class Sitemap
     }
 
 
+    public function setMinimalProirity($priority)
+    {
+        $this->minimalPriority = $priority;
+
+        return $this;
+    }
+
+
+    public function setDefaultUpdatePeriod($period)
+    {
+        $this->defaulUpdatePeriod = $period;
+
+        return $this;
+    }
+
+
     /**
      * Start crawling
      *
@@ -125,7 +164,12 @@ class Sitemap
         $this->collectLinksFromHtml($html);
     }
 
-
+    /**
+     * Get html code via get request
+     *
+     * @param  string $url
+     * @return string
+     */
     private function call($url)
     {
         $ch = curl_init();
@@ -140,7 +184,12 @@ class Sitemap
         return $data;
     }
 
-
+    /**
+     * Parse all links all the page and add them to $pagesToVisit array
+     *
+     * @param  string $html
+     * @return void
+     */
     private function collectLinksFromHtml(string $html)
     {
         $regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
@@ -154,7 +203,7 @@ class Sitemap
 
                     if ( ! $this->belongsToDomain($href) ) continue;
 
-                    if ( $this->isExcluded($href) ) continue;
+                    if ( $this->inExcluded($href) ) continue;
 
                     if ( ! $this->ofAllowedType($href) ) continue;
 
@@ -168,13 +217,23 @@ class Sitemap
         }
     }
 
-
+    /**
+     * Check if the link has already been visited
+     *
+     * @param  string  $link
+     * @return boolean
+     */
     private function isVisited($link)
     {
         return in_array($link, $this->visited);
     }
 
-
+    /**
+     * Check if route is of allowed type
+     *
+     * @param  [string] $link
+     * @return [boolean]
+     */
     private function ofAllowedType($link)
     {
         foreach ($this->allowedTypes as $type) {
@@ -212,13 +271,23 @@ class Sitemap
         return strpos($link, $this->domain) === 0;
     }
 
-
-    private function isExcluded($link)
+    /**
+     * Check if the link is in excluded array
+     *
+     * @param  [type] $link
+     * @return [type]
+     */
+    private function inExcluded($link)
     {
         return in_array($link, $this->excluded);
     }
 
-
+    /**
+     * Query strings and hashes are excluded 'a priore'
+     *
+     * @param  [string] $link
+     * @return [boolean]
+     */
     private function containsWrongSymbols($link)
     {
         return ! (strpos($link, '?') === false && strpos($link, '#') === false);

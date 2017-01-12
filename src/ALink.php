@@ -11,7 +11,7 @@ class ALink
     public function __construct($link, $priority, $updates)
     {
         $this->link = $link;
-        $this->priority = $priority;
+        $this->priority = number_format($priority, 2);
         $this->updates = $updates;
     }
 

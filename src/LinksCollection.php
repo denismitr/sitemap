@@ -40,13 +40,20 @@ class LinksCollection
     private $minimalPriority;
 
     /**
+     * [$defaulUpdatePeriod]
+     *
+     * @var string
+     */
+    protected $defaulUpdatePeriod = 'monthly';
+
+    /**
      * Constructor
      *
      * @param string $domain          [description]
      * @param array  $levels          [description]
      * @param float $minimalPriority [description]
      */
-    public function __construct(string $domain, array $levels, float $minimalPriority)
+    public function __construct(string $domain, array $levels, float $minimalPriority, string $defaulUpdatePeriod)
     {
         $this->domain = $domain;
 
@@ -55,6 +62,8 @@ class LinksCollection
         $this->domainLength = strlen( $this->domain );
 
         $this->minimalPriority = $minimalPriority;
+
+        $this->$defaulUpdatePeriod = $period;
     }
 
 
@@ -107,7 +116,7 @@ class LinksCollection
 
     private function getUpdateFrequency($level)
     {
-        return $this->levels[$level]['updates'] ?? 'monthly';
+        return $this->levels[$level]['updates'] ?? $this->defaulUpdatePeriod;
     }
 
 
